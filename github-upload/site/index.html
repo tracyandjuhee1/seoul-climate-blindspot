@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>기후위기의 사각지대 · 서울 폭염·침수 연구 제안</title>
+<link rel="stylesheet" href="lib/leaflet.css">
+<style>
+@font-face{font-family:P;src:url(fonts/Pretendard-Regular.otf);font-weight:400}
+@font-face{font-family:P;src:url(fonts/Pretendard-Medium.otf);font-weight:500}
+@font-face{font-family:P;src:url(fonts/Pretendard-SemiBold.otf);font-weight:600}
+@font-face{font-family:P;src:url(fonts/Pretendard-Bold.otf);font-weight:700}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#1d2a30;--sub:#5b6a70;--teal:#1a3f4a;--teal2:#2f8577;--pale:#f1f5f4;--line:#dbe4e3;--heat:#d4553a;--heat2:#fbe9e3;--flood:#2e6fb0;--flood2:#e5eff8;--warn:#fdf2e3}
+body{font-family:P,system-ui,sans-serif;color:var(--ink);line-height:1.6;word-break:keep-all;background:#fff}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+header.top{background:var(--teal);color:#fff}
+header.top .wrap{display:flex;justify-content:space-between;align-items:center;padding-top:12px;padding-bottom:12px;gap:12px;flex-wrap:wrap;font-size:14px}
+header.top a{color:var(--teal);background:#fff;border-radius:20px;padding:5px 14px;text-decoration:none;font-weight:700;font-size:13px;margin-left:6px}
+.hero{background:var(--teal);color:#fff;padding:36px 0 44px}
+.hero .k{font-size:12px;letter-spacing:.16em;opacity:.75;font-weight:600}
+.hero h1{font-size:42px;line-height:1.2;margin:8px 0 8px}
+.hero .s{font-size:18px;opacity:.92}
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:26px}
+.flow div{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:14px 16px}
+.flow b{display:block;font-size:12px;opacity:.75;letter-spacing:.06em}
+.flow strong{font-size:18px}
+.q{margin-top:22px;font-size:17px;font-weight:600;background:rgba(255,255,255,.1);border-left:4px solid #7fd1c0;padding:12px 16px;border-radius:6px}
+section{padding:44px 0 8px}
+.eb{font-size:12px;letter-spacing:.14em;color:var(--teal2);font-weight:700}
+h2{font-size:26px;color:var(--teal);margin:2px 0 8px}
+p.lead{color:var(--sub);margin-bottom:16px;max-width:820px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:#e6efed;color:var(--teal);text-align:left;padding:9px 10px;font-weight:700}
+td{border-bottom:1px solid var(--line);padding:9px 10px;vertical-align:top}
+td.h{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:20px;padding:1px 9px;white-space:nowrap}
+.ok{background:#dcefe9;color:#22715f}.plan{background:#fbe7d6;color:#a8572f}
+.heatc{color:var(--heat)}.floodc{color:var(--flood)}
+.app{border:1px solid var(--line);border-radius:14px;overflow:hidden;display:grid;grid-template-columns:330px 1fr;min-height:620px}
+.panel{padding:18px;background:var(--pale);display:flex;flex-direction:column;gap:12px}
+.seg{display:flex;background:#fff;border-radius:10px;padding:4px;gap:4px;border:1px solid var(--line)}
+.seg button{flex:1;border:0;background:none;padding:9px 6px;border-radius:7px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;color:var(--sub)}
+.seg button.on.heat{background:var(--heat);color:#fff}.seg button.on.flood{background:var(--flood);color:#fff}
+.steps{display:flex;flex-direction:column;gap:6px}
+.steps button{text-align:left;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 12px;font:inherit;font-size:14px;cursor:pointer;color:var(--ink)}
+.steps button b{display:inline-block;width:22px;height:22px;border-radius:50%;background:#e3e9e8;text-align:center;line-height:22px;font-size:12px;margin-right:8px}
+.steps button.on{border-color:var(--teal);box-shadow:0 0 0 2px rgba(26,63,74,.15)}
+.steps button.on b{background:var(--teal);color:#fff}
+.desc{background:#fff;border-radius:10px;padding:13px 14px;font-size:14px}
+.desc h4{font-size:15px;margin-bottom:4px;color:var(--teal)}
+.desc .say{margin-top:8px;font-size:13px;color:var(--sub);border-left:3px solid var(--line);padding-left:8px}
+.legend{font-size:12.5px;display:flex;flex-direction:column;gap:4px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:-2px}
+.legend i.dot{border-radius:50%;width:10px;height:10px;margin:0 8px 0 2px}
+.opt{font-size:13px;display:flex;gap:6px;align-items:center}
+#map{height:100%;min-height:620px;background:#eef2f1}
+.mapwrap{position:relative}
+.ph{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:500;pointer-events:none}
+.ph div{background:rgba(255,255,255,.94);border:2px dashed #e0a080;border-radius:14px;padding:22px 26px;max-width:420px;text-align:center;font-size:15px;box-shadow:0 4px 18px rgba(0,0,0,.08)}
+.ph strong{display:block;font-size:18px;color:var(--heat);margin-bottom:6px}
+.note{font-size:12.5px;color:var(--sub)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{border-radius:14px;padding:20px 22px}
+.card.heat{background:var(--heat2)}.card.flood{background:var(--flood2)}
+.card h3{font-size:20px;margin-bottom:10px}
+.card dl{display:grid;grid-template-columns:92px 1fr;gap:6px 10px;font-size:14px}
+.card dt{font-weight:700;color:var(--sub)}
+.methods{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.methods div{background:var(--pale);border-radius:12px;padding:14px 16px;font-size:14px}
+.methods b{display:block;font-size:12px;color:var(--teal2)}
+.methods strong{display:block;font-size:16px;color:var(--teal);margin-bottom:4px}
+.tl{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tl div{border-top:4px solid var(--teal2);background:var(--pale);border-radius:0 0 10px 10px;padding:10px 12px;font-size:14px}
+.tl div.now{border-top-color:var(--heat)}
+.tl b{display:block;font-size:17px;color:var(--teal)}
+.warn{background:var(--warn);border-radius:12px;padding:14px 18px;font-size:14px}
+footer{margin-top:48px;padding:22px 0 36px;border-top:1px solid var(--line);font-size:13px;color:var(--sub)}
+@media(max-width:860px){.app{grid-template-columns:1fr}#map{min-height:460px}.grid2,.methods,.tl,.flow{grid-template-columns:1fr}.hero h1{font-size:32px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><span><b>기후위기의 사각지대</b> · 스마트도시데이터분석 기말 프로젝트 제안</span><span><a href="proposal.pdf" target="_blank">제안서 PDF</a><a href="proposal.html">제안서 웹 버전</a></span></div></header>
+
+<div class="hero"><div class="wrap">
+  <div class="k">CLIMATE VULNERABILITY &amp; FACILITY PLACEMENT · SEOUL 250m GRID</div>
+  <h1>기후위기의 사각지대</h1>
+  <div class="s">서울시 폭염·침수 위험과 사회적 취약성, 돌봄·대피 시설 배치의 공간적 불일치</div>
+  <div class="q">재해 위험이 높고 취약한 사람이 많은 곳인데, 주변에 대응시설이 없는 곳은 어디일까?</div>
+  <div class="flow">
+    <div><b>질문 1</b><strong>어디가 위험한가?</strong></div>
+    <div><b>질문 2</b><strong>누가 더 취약한가?</strong></div>
+    <div><b>질문 3</b><strong>주변에 시설이 있는가?</strong></div>
+  </div>
+</div></div>
+
+<main class="wrap">
+
+<section>
+  <div class="eb">OVERVIEW</div>
+  <h2>폭염과 침수, 같은 세 질문으로 본다</h2>
+  <p class="lead">서울 전역을 250m 격자(서울과 겹치는 10,124칸)로 나누고, 두 재해에 똑같은 절차를 적용한다. 행정동 평균이 아니라 격자 단위로 보기 때문에 동 안의 차이까지 드러난다.</p>
+  <table>
+    <tr><th></th><th class="heatc">폭염</th><th class="floodc">침수</th></tr>
+    <tr><td class="h">① 위험</td><td>여름 지표면온도 (Landsat, Google Earth Engine) <span class="tag ok">확보</span></td><td>2026 침수예상도 면적비율 <span class="tag ok">확보</span></td></tr>
+    <tr><td class="h">② 취약성</td><td>65세 이상 00시 생활인구 (2026.06~08, 92일 평균) <span class="tag ok">확보 · 7일치 시연</span></td><td>지하층 주거(반지하) 세대 수, 건축물대장 <span class="tag ok">확보</span></td></tr>
+    <tr><td class="h">③ 시설</td><td>무더위쉼터 3,936개 <span class="tag ok">확보</span></td><td>이재민임시주거시설 1,100건 (좌표 유효 1,094개) <span class="tag ok">확보</span></td></tr>
+    <tr><td class="h">판정</td><td colspan="2">위험 상위 20% + 취약성 상위 20% + 주변 3×3 격자(약 750m)에 시설 없음 = <b>사각지대 후보</b>. 격자 안만 보는 기준도 함께 제시하고, 상위 10·20·30%로 바꿔 결과를 비교한다.</td></tr>
+  </table>
+</section>
+
+<section id="demo">
+  <div class="eb">DEMO · 결과 화면 미리보기</div>
+  <h2>버튼을 누를 때마다 질문의 답이 하나씩</h2>
+  <p class="lead">재해를 고르고 1→2→3 단계를 차례로 눌러 보세요. 모든 지도는 실제 자료로 그렸다. 침수 2단계의 반지하 결합만 ‘구현 예정’이다.</p>
+  <div class="app">
+    <div class="panel">
+      <div class="seg" id="hz"><button data-h="heat" class="heat">폭염</button><button data-h="flood" class="flood on">침수</button></div>
+      <div class="steps" id="st">
+        <button data-s="1" class="on"><b>1</b>위험: 어디가 위험한가?</button>
+        <button data-s="2"><b>2</b>취약성: 누가 더 취약한가?</button>
+        <button data-s="3"><b>3</b>시설 확인: 주변에 시설이 있는가?</button>
+      </div>
+      <div class="desc" id="desc"></div>
+      <div class="legend" id="lg"></div>
+      <label class="opt" id="optw"><input type="checkbox" id="opt"> <span id="optl"></span></label>
+      <div class="note">‘주변’은 해당 격자와 둘러싼 3×3 격자(약 750m) 기준이다. 실제 보행시간이나 안전한 대피경로를 계산한 것은 아니다.</div>
+    </div>
+    <div class="mapwrap"><div id="map"></div><div class="ph" id="ph"><div id="phd"></div></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="eb">DATA &amp; INDICATORS</div>
+  <h2>재해별 데이터와 지표</h2>
+  <div class="grid2">
+    <div class="card heat"><h3 class="heatc">폭염</h3><dl>
+      <dt>위험</dt><dd>Landsat 8/9 C2 L2 지표면온도, 2026년 6~8월 맑은 장면 중앙값 → 격자 중앙값 (Google Earth Engine)</dd>
+      <dt>취약성</dt><dd>서울 생활인구(OA-22784) 00시 65세 이상 인구의 92일 평균. ‘*’(3명 이하)는 0, 민감도 1·2명</dd>
+      <dt>시설</dt><dd>무더위쉼터(OA-21065, 2026.09) 3,936개. 70%가 경로당 등 회원이용시설 → 누구나 이용 가능한 쉼터(1,185개)만 센 비교안</dd>
+      <dt>해석 주의</dt><dd>지표면온도는 기온이 아니다. 00시 생활인구는 거주인구의 대리변수다. 쉼터는 대부분 평일 낮에만 연다.</dd></dl></div>
+    <div class="card flood"><h3 class="floodc">침수</h3><dl>
+      <dt>위험</dt><dd>2026 서울시 침수예상도 6개 침수심 구간. 겹친 구간은 깊은 구간 우선으로 정리 → 격자별 침수예상 면적비율</dd>
+      <dt>취약성</dt><dd>건축물대장 층별개요에서 지하층 주거(단독·다중·다가구·다세대·연립) 추출 → 격자별 세대 수 (+고령인구)</dd>
+      <dt>시설</dt><dd>이재민임시주거시설(OA-21064) 1,100건 중 좌표가 유효한 1,094개. 146개는 침수예상구역 안 → 예상구역 밖 시설만 센 비교안</dd>
+      <dt>검증</dt><dd>침수흔적도 2010~2025(실제 피해 필지)로 위치 대조: 2025 피해 필지의 81%가 예상구역 100m 이내, 반지하 추출 재현율 83.3%</dd></dl></div>
+  </div>
+</section>
+
+<section>
+  <div class="eb">METHODS FROM CLASS</div>
+  <h2>수업에서 배운 방법을 이렇게 쓴다</h2>
+  <div class="methods">
+    <div><b>10.12 · 10.26</b><strong>생활인구 분석</strong>00시 고령 생활인구를 취약성 지표로. 비식별값(‘*’)과 추정치 한계를 함께 기록</div>
+    <div><b>10.19 · 11.02</b><strong>지표 설계</strong>지표마다 계산식·분석 단위·“값이 높으면 무엇을 뜻하는가”를 정의하고 상위 % 기준으로 분류</div>
+    <div><b>10.26 · 11.02</b><strong>공간데이터 · 접근성</strong>geopandas로 좌표계(EPSG:5179) 통일, 공간결합·면적 교차. 경계 효과를 줄이려 격자 내와 3×3 기준을 함께 사용</div>
+    <div><b>11.16</b><strong>위성영상 (GEE)</strong>Landsat 열적외선으로 여름 지표면온도 합성, 구름·그림자 제거 후 격자별 집계</div>
+  </div>
+</section>
+
+<section>
+  <div class="eb">PLAN</div>
+  <h2>일정과 결과물</h2>
+  <div class="tl">
+    <div class="now"><b>11.23</b>제안서 발표</div>
+    <div><b>11.30</b>침수 경로 완료: 반지하 결합, 판정, 흔적도 검증</div>
+    <div><b>12.07</b>폭염 생활인구 92일로 확장, 민감도 분석(10·20·30%), 웹 지도 완성</div>
+    <div><b>12.14</b>결과 발표</div>
+  </div>
+  <p class="lead" style="margin-top:14px">결과물: 이 웹페이지의 지도를 실제 분석 결과로 채운 버전(Cloudflare Pages), 행정동·자치구별 사각지대 요약표, GitHub의 분석 코드와 노트북. 원자료는 용량과 재배포 문제로 올리지 않고 출처만 기록한다.</p>
+  <div class="warn"><b>해석 원칙</b> · 결과는 실제 피해 장소의 확정이 아니라 “공개자료로 추정한 상대적 취약지역”이다. 격자 내 시설 유무는 이동거리·수용능력·대피경로 안전성을 뜻하지 않으며, 자료마다 기준시점이 다르다(흔적도 2010~2025, 인구 2026 여름, 쉼터 2026.09, 건축물 2026.11).</div>
+</section>
+
+</main>
+<footer><div class="wrap">자료: 서울 열린데이터광장(무더위쉼터 OA-21065, 이재민임시주거시설 OA-21064, 생활인구 OA-22784), 서울시 풍수해 침수예상도·침수흔적도, 국가공간정보포털, SGIS, USGS Landsat / Google Earth Engine. 배경지도 © OpenStreetMap contributors © CARTO.</div></footer>
+
+<script src="lib/leaflet.js"></script>
+<script src="data/flood.js"></script>
+<script src="data/flood_cells.js"></script>
+<script src="data/evac.js"></script>
+<script src="data/shelter.js"></script>
+<script src="data/heat_pop.js"></script>
+<script>
+const map=L.map('map',{preferCanvas:true,zoomSnap:.25}).setView([37.5565,126.99],10.75);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:18}).addTo(map);
+const R=L.canvas({padding:.3});
+map.fitBounds([[37.425,126.76],[37.70,127.19]],{padding:[10,10]});
+const blues=['#7fb6e6','#4a8fd0','#2e6fb0','#0f305e','#0f305e','#0f305e'];
+const L_flood=L.geoJSON(D.flood,{renderer:R,style:f=>({stroke:false,fillColor:blues[f.properties.band-1],fillOpacity:.75})});
+const L_cells=L.geoJSON(D.flood_cells,{renderer:R,style:f=>({weight:0,fillColor:f.properties.top20?'#1d4f8a':'#a9cdee',fillOpacity:f.properties.top20?.85:.45})});
+let outOnly=false, outOnlyHeat=false;
+const oc=v=>v>=441?'#7a1f12':v>=300?'#c0432a':v>=150?'#e8836a':v>=50?'#f4b9a6':'#fbe3da';
+const lc=v=>v>=43.56?'#9e1b0f':v>=42?'#d4553a':v>=40?'#ef9a6d':v>=37?'#f8d0a8':v>=33?'#d9e6ea':'#8fb8cc';
+const tip=l=>{const p=l.feature.properties;return '지표면온도 '+p.lst+'℃ · 65세 이상 00시 '+p.old+'명'};
+const L_lst=L.geoJSON(D.heat_pop,{renderer:R,style:f=>({weight:0,fillColor:lc(f.properties.lst),fillOpacity:.8})}).bindTooltip(tip);
+const L_pop=L.geoJSON(D.heat_pop,{renderer:R,filter:f=>f.properties.hot,style:f=>({weight:0,fillColor:f.properties.both?'#7a1f12':'#f1b29c',fillOpacity:f.properties.both?.9:.55})}).bindTooltip(tip);
+function heatGap(){return L.geoJSON(D.heat_pop,{renderer:R,filter:f=>f.properties.both&&(outOnlyHeat?f.properties.sh33o:f.properties.sh33)===0,
+  style:{color:'#1d2a30',weight:2,fill:true,fillColor:'#7a1f12',fillOpacity:.85}})}
+const L_popTop=L.geoJSON(D.heat_pop,{renderer:R,filter:f=>f.properties.both,style:{weight:0,fillColor:'#7a1f12',fillOpacity:.75}}).bindTooltip(tip);
+function gapCells(){return L.geoJSON(D.flood_cells,{renderer:R,filter:f=>f.properties.top20&&(outOnly?f.properties.ev33_out:f.properties.ev33)===0,
+  style:{color:'#e0362c',weight:2,fill:true,fillColor:'#1d4f8a',fillOpacity:.85}})}
+function evacLayer(){return L.geoJSON(D.evac,{renderer:R,filter:f=>!(outOnly&&f.properties.inz),pointToLayer:(f,ll)=>L.circleMarker(ll,{renderer:R,radius:3.2,weight:1,color:'#fff',fillColor:f.properties.inz?'#9aa5a8':'#0f8a6a',fillOpacity:1}).bindTooltip(f.properties.n)})}
+function shelterLayer(){return L.geoJSON(D.shelter,{renderer:R,filter:f=>!(outOnlyHeat&&!f.properties.open),pointToLayer:(f,ll)=>L.circleMarker(ll,{renderer:R,radius:2.6,weight:.6,color:'#fff',fillColor:f.properties.open?'#0f8a6a':'#e39a7e',fillOpacity:.95}).bindTooltip(f.properties.n+' · '+f.properties.t+'<br>'+f.properties.h)})}
+let cur=[];function clear(){cur.forEach(l=>map.removeLayer(l));cur=[]}function add(l){l.addTo(map);cur.push(l)}
+let hz='flood',st=1;
+const T={
+ flood:{
+  1:{t:'침수가 예상되는 곳',live:1,d:'2026 서울시 침수예상도의 침수심 6개 구간(0.5m 미만~3.0m 이상). 서로 포개진 구간은 깊은 구간 우선으로 정리했다. 침수예상구역 합계 약 59㎢.',say:'“먼저 침수에 노출될 수 있는 지역을 지도에 표시합니다.”',
+     lg:[['#7fb6e6','구간 1 · 0.5m 미만'],['#4a8fd0','구간 2'],['#2e6fb0','구간 3'],['#0f305e','구간 4~6 · 깊음 (최대 3.0m 이상)']]},
+  2:{t:'위험지역 중 더 살펴볼 격자',live:2,d:'침수예상구역과 겹치는 250m 격자 3,322칸 중 침수 면적비율 상위 20%(665칸, 비율 0.52 이상)를 진하게 표시했다. <b>반지하 세대 수 결합은 구현 예정</b>이며, 완성본에서는 반지하 상위 20%와 겹치는 격자만 진하게 남는다.',say:'“위험한 지역 중에서도 더 주의해서 살펴볼 곳을 찾습니다.”',
+     lg:[['#a9cdee','침수예상 격자'],['#1d4f8a','면적비율 상위 20% (반지하 결합 전)']]},
+  3:{t:'그 주변에 대피시설이 있을까?',live:1,d:'',say:'“마지막으로 이런 지역 주변에 대응시설이 배치되어 있는지 확인합니다.”',
+     lg:[['#0f8a6a','임시주거시설','dot'],['#9aa5a8','침수예상구역 안 시설','dot'],['#1d4f8a','상위 20% 격자'],['#e0362c','주변 3×3에 시설 없음 (빨간 테두리)']]}},
+ heat:{
+  1:{t:'더운 곳',live:1,d:'Google Earth Engine에서 2026년 6~8월 Landsat 8/9 장면 8개를 구름·그림자 제거 후 중앙값으로 합성한 지표면온도(30m)를, 250m 격자별 중앙값으로 집계했다. 상위 20%(43.6℃ 이상, 2,024칸)가 가장 진한 빨강이다. 한강·산지는 낮고 공단·대규모 시설·도심이 높다. 지표면온도는 기온이 아니라 땅 표면의 온도다.',say:'“먼저 폭염에 노출될 수 있는 지역을 지도에 표시합니다.”',
+     lg:[['#8fb8cc','33℃ 미만'],['#d9e6ea','33~37℃'],['#f8d0a8','37~40℃'],['#ef9a6d','40~42℃'],['#d4553a','42~43.6℃'],['#9e1b0f','43.6℃ 이상 · 상위 20%']]},
+  2:{t:'더운 곳 중 고령 생활인구가 많은 곳',live:1,d:'고온 상위 20% 격자(2,024칸) 중 00시 65세 이상 생활인구도 상위 20%(격자당 441명 이상)인 곳은 <b>649칸</b>이다. 생활인구는 2026년 7월 20~26일 7일 평균(완성본은 6~8월 92일), ‘*’로 가려진 값은 0으로 두어 실제보다 조금 적게 잡힌다.',say:'“위험한 지역 중에서도 더 주의해서 살펴볼 곳을 찾습니다.”',
+     lg:[['#f1b29c','고온 상위 20%'],['#7a1f12','고온 + 고령 생활인구 상위 20% (649칸)']]},
+  3:{t:'그 주변에 무더위쉼터가 있을까?',live:1,d:'',say:'“이런 지역 주변에 쉼터가 있는지, 실제로 누구나 쓸 수 있는 쉼터인지 확인합니다.”',
+     lg:[['#0f8a6a','누구나 이용 가능한 쉼터 (1,185개)','dot'],['#e39a7e','회원이용시설 (경로당 등, 2,751개)','dot'],['#7a1f12','고온 + 고령 상위 격자'],['#1d2a30','주변 3×3에 쉼터 없음 (검은 테두리)']]}}
+};
+function render(){
+  clear();const c=T[hz][st];
+  document.querySelectorAll('#hz button').forEach(b=>b.classList.toggle('on',b.dataset.h===hz));
+  document.querySelectorAll('#st button').forEach(b=>b.classList.toggle('on',+b.dataset.s===st));
+  const badge=c.live===1?'<span class="tag ok">실제 자료</span>':c.live===2?'<span class="tag ok">실제 자료</span> <span class="tag plan">일부 구현 예정</span>':'<span class="tag plan">구현 예정</span>';
+  let d=c.d;
+  if(hz==='flood'&&st===3){const n=D.flood_cells.features.filter(f=>f.properties.top20&&(outOnly?f.properties.ev33_out:f.properties.ev33)===0).length;
+    d=`이재민임시주거시설 1,094개(실제 위치, 원자료 1,100건 중 좌표 오류·테스트 행 6건 제외). 면적비율 상위 20% 격자 665칸 중 <b>주변 3×3 격자에 시설이 없는 곳은 ${n}칸</b>${outOnly?' (침수예상구역 밖 시설만 셀 때)':''}이다. 회색 점 146개는 시설 자체가 침수예상구역 안에 있다.`}
+  if(hz==='heat'&&st===3){const n=D.heat_pop.features.filter(f=>f.properties.both&&(outOnlyHeat?f.properties.sh33o:f.properties.sh33)===0).length;
+    d=`무더위쉼터 3,936개의 실제 위치. 고온·고령 상위 격자 649칸 중 <b>주변 3×3 격자에 쉼터가 없는 곳은 ${n}칸</b>${outOnlyHeat?' (누구나 이용 가능한 쉼터만 셀 때)':''}이다. 쉼터의 70%(2,751개)가 경로당 등 회원이용시설이라, 비교안을 켜면 빈 곳이 4칸에서 87칸으로 늘어난다.`}
+  document.getElementById('desc').innerHTML=`<h4>${c.t}</h4>${badge}<div style="margin-top:6px">${d}</div><div class="say">${c.say}</div>`;
+  document.getElementById('lg').innerHTML=c.lg.map(x=>`<div><i class="${x[2]||''}" style="background:${x[0]};${x[1].includes('테두리')?'background:#fff;border:2px solid '+x[0]:''}"></i>${x[1]}</div>`).join('');
+  const ow=document.getElementById('optw'),o=document.getElementById('opt');
+  if(hz==='flood'&&st===3){ow.style.display='flex';document.getElementById('optl').textContent='침수예상구역 밖 시설만 세기 (비교안)';o.checked=outOnly}
+  else if(hz==='heat'&&st===3){ow.style.display='flex';document.getElementById('optl').textContent='누구나 이용 가능한 쉼터만 보기 (비교안)';o.checked=outOnlyHeat}
+  else ow.style.display='none';
+  const ph=document.getElementById('ph');
+  if(c.live===0){ph.style.display='flex';document.getElementById('phd').innerHTML=`<strong>${c.ph}</strong>${c.phd}`}else ph.style.display='none';
+  if(hz==='flood'){
+    if(st===1)add(L_flood);
+    if(st===2)add(L_cells);
+    if(st===3){add(L_cells);add(gapCells());add(evacLayer())}
+  }else{
+    if(st===1)add(L_lst);
+    if(st===2)add(L_pop);
+    if(st===3){add(L_popTop);add(heatGap());add(shelterLayer())}
+  }
+}
+document.querySelectorAll('#hz button').forEach(b=>b.onclick=()=>{hz=b.dataset.h;st=1;render()});
+document.querySelectorAll('#st button').forEach(b=>b.onclick=()=>{st=+b.dataset.s;render()});
+document.getElementById('opt').onchange=e=>{if(hz==='flood')outOnly=e.target.checked;else outOnlyHeat=e.target.checked;render()};
+const m=location.hash.match(/(heat|flood)-(\d)/);if(m){hz=m[1];st=+m[2]}
+render();
+if(m)document.getElementById('demo').scrollIntoView();
+</script>
+</body>
+</html>
