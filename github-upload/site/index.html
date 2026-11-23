@@ -77,6 +77,7 @@ td.h{font-weight:700;white-space:nowrap}
 .warn{background:var(--warn);border-radius:12px;padding:14px 18px;font-size:14px}
 footer{margin-top:48px;padding:22px 0 36px;border-top:1px solid var(--line);font-size:13px;color:var(--sub)}
 @media(max-width:860px){.app{grid-template-columns:1fr}#map{min-height:460px}.grid2,.methods,.tl,.flow{grid-template-columns:1fr}.hero h1{font-size:32px}}
+.gray{filter:grayscale(1) brightness(1.08) contrast(.9)}
 </style>
 </head>
 <body>
@@ -172,7 +173,7 @@ footer{margin-top:48px;padding:22px 0 36px;border-top:1px solid var(--line);font
 </section>
 
 </main>
-<footer><div class="wrap">자료: 서울 열린데이터광장(무더위쉼터 OA-21065, 이재민임시주거시설 OA-21064, 생활인구 OA-22784), 서울시 풍수해 침수예상도·침수흔적도, 국가공간정보포털, SGIS, USGS Landsat / Google Earth Engine. 배경지도 © OpenStreetMap contributors © CARTO.</div></footer>
+<footer><div class="wrap">자료: 서울 열린데이터광장(무더위쉼터 OA-21065, 이재민임시주거시설 OA-21064, 생활인구 OA-22784), 서울시 풍수해 침수예상도·침수흔적도, 국가공간정보포털, SGIS, USGS Landsat / Google Earth Engine. 배경지도 © OpenStreetMap contributors.</div></footer>
 
 <script src="lib/leaflet.js"></script>
 <script src="data/flood.js"></script>
@@ -182,7 +183,7 @@ footer{margin-top:48px;padding:22px 0 36px;border-top:1px solid var(--line);font
 <script src="data/heat_pop.js"></script>
 <script>
 const map=L.map('map',{preferCanvas:true,zoomSnap:.25}).setView([37.5565,126.99],10.75);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:18}).addTo(map);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:19,className:'gray'}).addTo(map);
 const R=L.canvas({padding:.3});
 map.fitBounds([[37.425,126.76],[37.70,127.19]],{padding:[10,10]});
 const blues=['#7fb6e6','#4a8fd0','#2e6fb0','#0f305e','#0f305e','#0f305e'];
